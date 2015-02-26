@@ -1,0 +1,7 @@
+name ; haschildren ; children ; hasparents ; parents; weights ; bias ; f_age ; r_age ; size ; dec ; t_function ; delta
+n_0;False;;True;n_2, n_3;-2.357703307676629, 3.0309398051018444;1.42567027033;1616;1604;2;2;Sigmoid;0.0
+n_1;False;;True;n_2, n_3;-6.711004209155165, 5.281243862220736;-3.37263053971;1616;1604;2;2;Sigmoid;0.0
+n_2;True;n_0, n_1;False;;3.0084451824862275, -3.8185173093478233;-1.6;1616;1604;2;2;Threshold;-0.0
+n_3;True;n_0, n_1;False;;-2.5587150485434957, 4.239647943367102;1.8;1616;1604;2;2;Threshold;-0.0
+name;accuracy 
+Cortex1;1.0

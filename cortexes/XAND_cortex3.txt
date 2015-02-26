@@ -1,0 +1,4 @@
+name ; haschildren ; children ; hasparents ; parents ; weights ; bias ; f_age ; r_age ; size ; dec ; t_function
+n_0;False;;True;n_2;6.8556997571730465, -6.790557437700071;6.08845195164;2408;2404;2;3;Sigmoid
+n_1;False;;True;n_2;1.8002069538134795, -0.32059411181171404;4.01496976979;2408;2404;2;3;Sigmoid
+n_2;True;n_0, n_1;False;;3.0309264397811653, -1.9386807372117665;-1.1;2408;2404;2;3;Threshold

@@ -1,0 +1,2 @@
+name ; haschildren ; children ; hasparents ; parents ; weights ; bias ; f_age ; r_age ; size ; dec ; t_function
+n_0;False;;False;;2.8, 1.7000000000000002;-3.6;404;400;2;1;Threshold

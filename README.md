@@ -20,9 +20,13 @@ relevant statistical information. It is presently built to import training data
 from a text file with the following format with a header
 
 in_name1, in_name2, ... , in_nameN ; out_name1, out_name2, ... , out_nameN
+
 in1, in2, ..., inN; out1, out2, ..., outN 
-in1, in2, ..., inN; out1, out2, ..., outN 
+
+in1, in2, ..., inN; out1, out2, ..., outN
+
 in1, in2, ..., inN; out1, out2, ..., outN 
 etc...
+
 
 hope you find it informative, enjoy!

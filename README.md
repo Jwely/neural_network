@@ -17,7 +17,7 @@ by back propogation.
 What this package NEEDS is testing on more complex datasets, and a new method or
 two for loading lots of inputs into a trained cortex and saving the outputs with
 relevant statistical information. It is presently built to import training data 
-from a text file with the following format with a header
+from a text file with the following format with a header (note the semicolons) 
 
 in_name1, in_name2, ... , in_nameN ; out_name1, out_name2, ... , out_nameN
 

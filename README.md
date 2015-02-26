@@ -14,6 +14,8 @@ pass input and output out of a single neuron with simple learning before moving
 up to use the "cortex" class to manage groups of neurons with more complex learning
 by back propogation.
 
+hope you find it informative, enjoy!
+
 ### Input/Output
 What this package NEEDS is testing on more complex datasets, and a new method or
 two for loading lots of inputs into a trained cortex and saving the outputs with
@@ -33,4 +35,4 @@ etc...
 Python 2.7
 
 
-hope you find it informative, enjoy!
+

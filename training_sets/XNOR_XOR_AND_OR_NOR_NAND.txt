@@ -1,4 +1,4 @@
-input,input;output;output
+input_1,input_2;XNOR,XOR,AND,OR,NOR,XAND
 0,0;1,0,0,0,1,1
 0,1;0,1,0,1,0,1
 1,0;0,1,0,1,0,1

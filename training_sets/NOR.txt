@@ -1,4 +1,4 @@
-input,input;output
+input_1,input_2;NOR
 0,0;1
 0,1;0
 1,0;0

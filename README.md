@@ -16,6 +16,10 @@ by back propogation.
 
 hope you find it informative, enjoy!
 
+### Installation
+Does not require installation, presently set up only to work in local directory
+Requires python 2.7
+
 ### Input/Output
 What this package NEEDS is testing on more complex datasets, and a new method or
 two for loading lots of inputs into a trained cortex and saving the outputs with

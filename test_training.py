@@ -1,7 +1,7 @@
 from cortex_class import cortex
 
 # import test data
-path = r"training_sets\2_output\XNOR_XOR_AND_OR_NOR_NAND.txt"
+path = r"training_sets\XNOR_XOR_AND_OR_NOR_NAND.txt"
 
 # set up a cortex
 cort = cortex('cortex_1')

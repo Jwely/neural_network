@@ -126,7 +126,7 @@ class cortex:
 
 
     def repopulate(self, layer = "All"):
-        """used to reset all neurons in the cortex for a fresh start"""
+        """ Used to reset entire layers in the cortex for a fresh start"""
 
         if layer == "All":
             reset_list = self.neurons
@@ -169,11 +169,11 @@ class cortex:
     def ready_to_learn(self,in_neuron):
 
         """
-        checks learning rediness of neuron within cortex
+        Checks learning rediness of neuron within cortex
 
-        If the reverse age of all parents is one greater than
-        the reverse age of the input neuron, or the input neuron
-        has zero parents then the function returns True.
+        If the reverse age of all parents is one greater than the reverse age
+        of the input neuron, or the input neuron has zero parents then the
+        function returns True.
         """
 
         if in_neuron.hasparents == False:
@@ -191,8 +191,7 @@ class cortex:
         """
         Fires every neuron in the cortex once for a given set of inputs
 
-        returns a list of output values from output neuron axons
-        returns an object list of output-layer neurons
+        Returns a list of values from output layer neuron axons.
         """
         
         unfired_neurons  = self.neurons[:]
@@ -313,10 +312,8 @@ class cortex:
         """
         Exhaustively tests cortex state with all training data. SLOW
 
-        Outputs a percent of all output values that correctly match
+        Outputs a fraction of all output values that correctly match
         up to target values within the 'acceptable_error' (acc_err) bounds.
-
-        set a report path to save an accuracy report for the cortex
         """
         
         total_outs          = self.queery(self.training_input_set)
@@ -365,12 +362,14 @@ class cortex:
             
         return
 
+
     def save_accuracy_report(self, filepath):
         """saves an accuracy report to filepath"""
 
         self.accuracy_report_path = filepath
         
         return
+
         
     def disconnect(self, neuron_1, neuron_2):
         """destroys connections between two neurons, inputs name or instance"""
@@ -483,7 +482,7 @@ class cortex:
     
     
     def export_state(self,filepath):
-        """Exports the entire state of this cortex to a text file"""
+        """Exports the state of this cortex to a text file so it may be saved"""
         
         header = ("name ; haschildren ; children ; hasparents ; parents"+
                   "; weights ; bias ; f_age ; r_age ; size ; dec ; t_function"+ 
@@ -625,11 +624,6 @@ class cortex:
 
         input file should have the format
         in0,in1,...,intN;out0,out1,...,outN
-        
-        Two numpy arrays are returned:
-            inarray     (2d matrix of training input datasets)
-            outarray    (1d array of training output)
-        These combine to represent the entire training dataset
 
         normalization of inputs is performed by default
         """

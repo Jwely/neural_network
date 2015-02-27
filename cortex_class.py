@@ -107,7 +107,7 @@ class cortex:
         for i in range(hidden_neurons):
             HiddenLayer.append("n_{0}".format(i))
 
-        for i in range(self.output_width):
+        for i in range(self.size_output):
             OutLayer.append("n_{0}".format(i + hidden_neurons))
 
         self.hidden_neurons = [ neuron(name) for name in HiddenLayer]
@@ -272,7 +272,7 @@ class cortex:
 
                 # if instability is very low, cortex has converged for better or worse
                 if self.instability < 1e-3:
-                    if self.get_accuracy() < self.min_acc:
+                    if self.get_training_accuracy() < self.min_acc:
                         print("ses: {0}, Repopulating hidden neurons".format(current_session))
                         self.repopulate("Hidden")
                         initial_session = 1
@@ -308,7 +308,7 @@ class cortex:
         return self.instability    
 
 
-    def get_accuracy(self):
+    def get_training_accuracy(self):
         """
         Exhaustively tests cortex state with all training data. SLOW
 
@@ -345,28 +345,35 @@ class cortex:
         return self.accuracy
     
     
-    def print_accuracy_report(self):
+    def print_training_accuracy_report(self):
         """ Prints a summary of the present cortex accuracy"""
-        
-        # print a heads up report to screen if the dataset is small
-        print("Cortex age is {0}".format(self.learn_age))
-        print("Total accuracy is {0}%".format(100 * self.accuracy))
-        print("Output  |  Target")
+
+        print("="*50)
+        print("Accuracy report for cortex with name '{0}'".format(self.name))
+        print("="*50)
+
+        print("\nOutput  |  Target")
         for i,training_input in enumerate(self.training_input_set):
             print("{0}  |  {1}".format(
                 self.fire(training_input),
                 self.target_set[i]))
 
-        print("Accuracy by output value (column)")
-        print self.col_accuracy
-            
+        print("\nCortex age is {0}".format(self.learn_age))
+                
+        print("\nAccuracy by output value (column)")
+        for i,out_name in enumerate(self.out_names):
+            print("{0} \t  {1}%".format(out_name,100*self.col_accuracy[i]))
+
+        print("-"*50)
+        print("Total \t  {0}%".format(100 * self.accuracy))
+        print("="*50 + "\n")
         return
 
 
-    def save_accuracy_report(self, filepath):
+    def save_training_accuracy_report(self, filepath):
         """saves an accuracy report to filepath"""
 
-        self.accuracy_report_path = filepath
+        self.training_accuracy_report_path = filepath
         
         return
 
@@ -468,12 +475,12 @@ class cortex:
     def interogate(self):
         """quick function to interogate all neurons for heads up display"""
         
-        print("="*80)
-        print(" "*20 + "Interogation of cortex '{0}'".format(self.name))
-        print("="*80)
+        print("="*50)
+        print("Interogation of cortex with name'{0}'".format(self.name))
+        print("="*50)
 
         for var in vars(self):
-            whitespace = " "*(14-len(var))
+            whitespace = " "*(25-len(var))
             print("{0}{1}{2}".format(var, whitespace, getattr(self,var)))
         
         for neur in self.neurons:
@@ -483,43 +490,57 @@ class cortex:
     
     def export_state(self,filepath):
         """Exports the state of this cortex to a text file so it may be saved"""
-        
-        header = ("name ; haschildren ; children ; hasparents ; parents"+
-                  "; weights ; bias ; f_age ; r_age ; size ; dec ; t_function"+ 
-                  "; delta ; del_delta" )
 
-        f = open(filepath,'w+')
-        f.write(header + '\n')
+        with open(filepath, 'w+') as f:
+            
+            # writes cortex level attributes
+            cortex_entry_headers = ("name ; out_names ; size ; size_hidden ;" + 
+                                    "size_output; accuracy ; min_acc ; col_accuracy ;" +
+                                    "max_err ; crit_instability")
 
-        for neuron in self.neurons:
-            entry = "{0};{1};{2};{3};{4};{5};{6};{7};{8};{9};{10};{11};{12};{13}".format(
-                neuron.name,
-                neuron.haschildren,
-                [getattr(child,'name') for child in neuron.children],
-                neuron.hasparents,
-                [getattr(parent,'name') for parent in neuron.parents],
-                neuron.weights,
-                neuron.bias,
-                neuron.f_age,
-                neuron.r_age,
-                neuron.size,
-                neuron.dec,
-                neuron.t_function,
-                neuron.delta,
-                neuron.del_delta)
+            cortex_entry = "{0};{1};{2};{3};{4};{5};{6};{7};{8};{9}".format(
+                self.name,
+                self.out_names,
+                self.size,
+                self.size_hidden,
+                self.size_output,
+                self.accuracy,
+                self.min_acc,
+                self.col_accuracy,
+                self.max_err,
+                self.crit_instability)
+            
+            f.write(cortex_entry_headers + '\n')
+            f.write(cortex_entry + '\n')
 
-            entry = entry.replace("'","").replace("[","").replace("]","")
-            f.write(entry + '\n')
+            # write rows with neuron level attributes
+            header = ("name ; haschildren ; children ; hasparents ; parents"+
+                      "; weights ; bias ; f_age ; r_age ; size ; dec ; t_function"+ 
+                      "; delta ; del_delta" )
 
-        cortex_entry_headers = "name ; accuracy \n"
-        cortex_entry = "{0};{1}\n".format(
-            self.name,
-            self.accuracy)
-        
-        f.write(cortex_entry_headers)
-        f.write(cortex_entry)
-        
-        f.close()
+            f.write(header + '\n')
+
+            for neuron in self.neurons:
+                entry = "{0};{1};{2};{3};{4};{5};{6};{7};{8};{9};{10};{11};{12};{13}".format(
+                    neuron.name,
+                    neuron.haschildren,
+                    [getattr(child,'name') for child in neuron.children],
+                    neuron.hasparents,
+                    [getattr(parent,'name') for parent in neuron.parents],
+                    neuron.weights,
+                    neuron.bias,
+                    neuron.f_age,
+                    neuron.r_age,
+                    neuron.size,
+                    neuron.dec,
+                    neuron.t_function,
+                    neuron.delta,
+                    neuron.del_delta)
+
+                entry = entry.replace("'","").replace("[","").replace("]","")
+                f.write(entry + '\n')
+
+            f.close()
         return
 
 
@@ -535,59 +556,77 @@ class cortex:
         should be formatted.
         """
 
+        print("="*50)
+        print("Importing cortex state from '{0}'".format(filepath))
+        print("="*50 + '\n')
+        
         self.imported_from = filepath
         self.neurons = []
-        
+        self.output_neurons = []
+        self.hidden_neurons = []
+
         with open(filepath,'r+') as f:
-            header = next(f)
+
+            # grabs cortex level information from the top first
+            cortex_header = next(f).replace('\n','').replace(' ','').split(';')
+            
+            cortex_line = next(f).replace('\n','').replace(' ','').replace("[","").replace("]","")
+            cortex_info = cortex_line.split(';')
+
+            for i,field in enumerate(cortex_info):
+                if ',' in field:
+                    cortex_info[i] = cortex_info[i].replace("'",'').split(',')   
+
+            for i,attribute in enumerate(cortex_header):
+                setattr(self, attribute, cortex_info[i])
+                print("imported attribute '{0}' as {1}".format(attribute,cortex_info[i]))
+
+            # correct formats that shouldn't be strings
+            self.size               = int(self.size)
+            self.size_hidden        = int(self.size_hidden)
+            self.size_output        = int(self.size_output)
+            self.accuracy           = float(self.accuracy)
+            self.min_acc            = float(self.min_acc)
+            self.col_accuracy       = map(float,self.col_accuracy)
+            self.max_err            = float(self.max_err)
+            self.crit_instability   = float(self.crit_instability)
+            
+
+            # moves on to grab neuron information
+            neuron_header = next(f).replace('\n','').replace(' ','').split(';')
+            
             for line in f:
                 line = line.replace('\n','').replace(' ','').replace("[","").replace("]","")
                 info = line.split(';')
 
                 # handles neuron info one row at a time
-                if len(info) >10:
-                    for i,field in enumerate(info):
-                        if ',' in field:
-                            info[i] = info[i].split(',')
-                        if 'True' in field:
-                            info[i] = True
-                        elif 'False' in field:
-                            info[i] = False
+                for i,field in enumerate(info):
+                    if ',' in field:
+                        info[i] = info[i].split(',')
+                    if 'True' in field:
+                        info[i] = True
+                    elif 'False' in field:
+                        info[i] = False
 
-                    neur = neuron(info[0])
+                neur = neuron(info[0])
 
-                    attributes = ['name','haschildren','children','hasparents',
-                                  'parents','weights','bias','f_age','r_age',
-                                  'size','dec','t_function','delta','del_delta']
+                for i,attribute in enumerate(neuron_header):
+                    setattr(neur,attribute,info[i])
 
-                    for i,attribute in enumerate(attributes):
-                        setattr(neur,attribute,info[i])
+                neur.weights    = map(float,neur.weights)
+                neur.bias       = float(neur.bias)
+                neur.f_age      = int(neur.f_age)
+                neur.r_age      = int(neur.r_age)
+                neur.size       = int(neur.size)
+                neur.dec        = int(neur.dec)
+                neur.delta      = float(neur.delta)
+                neur.del_delta  = float(neur.del_delta)
+                neur.hasparents = bool(neur.hasparents)
+                neur.haschildren= bool(neur.haschildren)
 
-                    neur.weights    = map(float,neur.weights)
-                    neur.bias       = float(neur.bias)
-                    neur.f_age      = int(neur.f_age)
-                    neur.r_age      = int(neur.r_age)
-                    neur.size       = int(neur.size)
-                    neur.dec        = int(neur.dec)
-                    neur.delta      = float(neur.delta)
-                    neur.del_delta  = float(neur.del_delta)
+                self.neurons.append(neur)
+                print("imported member neuron with name '{0}'".format(neur.name))
 
-                    self.neurons.append(neur)
-                    
-                # handles cortex data at the bottom.
-                else:
-                    cortex_header = info
-                    
-                    cortex_line = next(f).replace('\n','').replace(' ','').replace("[","").replace("]","")
-                    cortex_info = cortex_line.split(';')
-
-                    for i,attribute in enumerate(cortex_header):
-                        setattr(self, attribute, cortex_info[i])
-
-                    self.accuracy = float(self.accuracy)
-
-                self.size = len(self.neurons)
-                
             for neur in self.neurons: 
                 # presently, each neurons children and parents lists
                 # are just strings. turn these into object lists.
@@ -615,6 +654,8 @@ class cortex:
                     neur.children = []
 
         f.close()
+        print("="*50 + '\n')
+        
         return
 
     def import_training(self, training_data_filepath, normalize = True):
@@ -635,7 +676,7 @@ class cortex:
             header = next(f)
             names          = header.split(";")
             self.in_names  = names[0].split(',')
-            self.out_names = names[1].split(',')
+            self.out_names = names[1].replace('\n','').split(',')
             
             for line in f:
                 indata,outdata = line.split(';')
@@ -647,7 +688,7 @@ class cortex:
 
         f.close()
 
-        self.output_width = len(self.target_set[0])
+        self.size_output = len(self.target_set[0])
 
         if normalize:
             self.training_input_set = self.normalize_training()

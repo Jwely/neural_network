@@ -1,0 +1,13 @@
+name ; out_names ; size ; size_hidden ;size_output; accuracy ; min_acc ; col_accuracy ;max_err ; crit_instability
+cortex_1;['XNOR', 'XOR', 'AND', 'OR', 'NOR', 'XAND'];10;4;6;0;1.0;[];0.001;1
+name ; haschildren ; children ; hasparents ; parents; weights ; bias ; f_age ; r_age ; size ; dec ; t_function; delta ; del_delta
+n_0;False;;True;n_4, n_5, n_6, n_7, n_8, n_9;;0.8;0;0;0;2;Sigmoid;0;0
+n_1;False;;True;n_4, n_5, n_6, n_7, n_8, n_9;;0.7;0;0;0;2;Sigmoid;0;0
+n_2;False;;True;n_4, n_5, n_6, n_7, n_8, n_9;;0.6;0;0;0;2;Sigmoid;0;0
+n_3;False;;True;n_4, n_5, n_6, n_7, n_8, n_9;;0.3;0;0;0;2;Sigmoid;0;0
+n_4;True;n_0, n_1, n_2, n_3;False;;0.8232331970257947, 0.7090670678557567, 0.1821944513851811, 0.8442573222886599;0.8;0;0;0;2;Threshold;0;0
+n_5;True;n_0, n_1, n_2, n_3;False;;0.8612300201646288, 0.10672163428009329, 0.31371146165982666, 0.4688542357426023;0.5;0;0;0;2;Threshold;0;0
+n_6;True;n_0, n_1, n_2, n_3;False;;0.11061663510621955, 0.48323605632519095, 0.5174102422821623, 0.6728530471063382;0.5;0;0;0;2;Threshold;0;0
+n_7;True;n_0, n_1, n_2, n_3;False;;0.27762614676125663, 0.5250971829662133, 0.031880215031042325, 0.9969608964913526;0.6;0;0;0;2;Threshold;0;0
+n_8;True;n_0, n_1, n_2, n_3;False;;0.10546674073387463, 0.07500848122349402, 0.6515725004475168, 0.9659648862452923;0.0;0;0;0;2;Threshold;0;0
+n_9;True;n_0, n_1, n_2, n_3;False;;0.05836766958354922, 0.9341201062833863, 0.34063360610326776, 0.7186838429876885;0.4;0;0;0;2;Threshold;0;0

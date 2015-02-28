@@ -140,7 +140,10 @@ class neuron:
 
         Tracks changes in delta values to gauge instability. The sum of
         squares for the delta value and the rate of change of that
-        delta value is a decent 2nd order estimate of sintability.
+        delta value is a decent 2nd order estimate of instability.
+
+        @param target will be "False" for neurons on hidden layers, and have
+        a float value for output layer neurons.
         """
 
         def Sig(self, target):
@@ -195,7 +198,7 @@ class neuron:
             return Thresh(self, target)
 
     
-    def learn(self,target = False):
+    def learn(self, target = False):
         """
         Trains the neuron
 

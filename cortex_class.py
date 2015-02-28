@@ -253,9 +253,6 @@ class cortex:
             self.print_accuracy_report
         """
 
-        if self.size_hidden < len(self.training_input_set[0]):
-            raise Exception("Too few hidden neurons! must be >= num of inputs")
-        
         current_session = 1
         initial_session = 1
 

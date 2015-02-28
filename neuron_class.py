@@ -150,9 +150,6 @@ class neuron:
             
             if target:  # for neurons on the output layer
                 new_delta       = Dd_Dz * (self.axon - target)
-                self.del_delta  = new_delta - self.delta
-                self.delta      = new_delta
-                self.instability= self.delta**2 + self.del_delta**2
 
             else:       # for neurons in hidden layers
                 temp_delta = 0
@@ -160,12 +157,15 @@ class neuron:
                     parent_weight = parent.weights[parent.children.index(self)]
                     temp_delta   += parent.delta * parent_weight
 
-                new_delta       = temp_delta * Dd_Dz
-                self.del_delta  = new_delta - self.delta
-                self.delta      = new_delta
-                self.instability= self.delta**2 + self.del_delta**2
+                new_delta = temp_delta * Dd_Dz
 
-            # speed the learning rate beyond what is typical, but cap it at 0.5. 
+
+            # set new delta values and calculate instability
+            self.del_delta   = new_delta - self.delta
+            self.delta       = new_delta
+            self.instability = self.delta**2 + self.del_delta**2
+
+            # speed the learning rate BEYOND what is typical, but cap it at 0.5. 
             self.learning_rate  = abs(self.delta)**(0.1)
             if self.learning_rate > 0.5:
                 self.learning_rate = 0.5
@@ -177,10 +177,10 @@ class neuron:
         def Thresh(self, target):
             """back propogation based on threshold function (outlayer ONLY)"""
             
-            new_delta       = self.axon - target
-            self.del_delta  = new_delta - self.delta
-            self.delta      = new_delta
-            self.instability= self.delta**2 + self.del_delta**2
+            new_delta        = self.axon - target
+            self.del_delta   = new_delta - self.delta
+            self.delta       = new_delta
+            self.instability = self.delta**2 + self.del_delta**2
             
             self.learning_rate  = 1
 

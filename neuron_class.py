@@ -1,5 +1,5 @@
 from random import random, randint, sample, randrange
-import numpy
+import math
 
 __author__ = "Jeffry Ely, jeff.ely.08@gmal.com"
 
@@ -114,15 +114,19 @@ class neuron:
 
 
     def forward_transfer(self,z):
-        """Contains all transfer functions that are supported"""
+        """ Contains all transfer functions that are supported"""
 
+        def TanH(self, z):
+            """ Hyperbolic tan function for continuous numbers between -1 and 1"""
+            return math.tanh(z)
+            
         def Sig(self, z):
-            """simple Sigmoid function for continous output"""
+            """ Simple Sigmoid function for continuous numbers between 0 and 1"""
             e = 2.71828
             return round(1/(1 + e**(-z)), self.dec)
 
         def Thresh(self, z):
-            """True/False style threshold function for categorical output"""
+            """ True/False style threshold function for categorical output"""
             if z > 0:
                 return 1.0
             else:
@@ -132,6 +136,8 @@ class neuron:
             return Sig(self, z)
         elif self.t_function == "Threshold":
             return Thresh(self, z)
+        elif self.t_function == "TanH":
+            return TanH(self, z)
 
 
     def back_transfer(self, target):
@@ -146,13 +152,31 @@ class neuron:
         a float value for output layer neurons.
         """
 
+        def TanH(self, target):
+            """ back propogation for a hyperbolic tangent function"""
+            # derivative of tanh(x) is ( 1- tanh^2(x)), used for back propogation
+
+            Dd_Dz = self.axon * (1 - math.tanh(x)**2)
+
+            if target   # for neurons on the output layer
+                new_delta = Dd_Dz * (self.axon - target)
+                
+            else:       # for neurons in hidden layers
+                temp_delta = 0
+                for parent in self.parents:
+                    parent_weight = parent.weights[parent.children.index(self)]
+                    temp_delta += parent.delta * parent_weight
+
+                new_delta = temp_delta * Dd_Dz
+
+            
         def Sig(self, target):
             """ back propogation based on a sigmoid function"""
 
             Dd_Dz = self.axon * (1 - self.axon)
             
             if target:  # for neurons on the output layer
-                new_delta       = Dd_Dz * (self.axon - target)
+                new_delta = Dd_Dz * (self.axon - target)
 
             else:       # for neurons in hidden layers
                 temp_delta = 0
@@ -196,6 +220,8 @@ class neuron:
             return Sig(self, target)
         elif self.t_function == "Threshold":
             return Thresh(self, target)
+        elif self.t_function == "TanH":
+            return TanH(self, target)
 
     
     def learn(self, target = False):

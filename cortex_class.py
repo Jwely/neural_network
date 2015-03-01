@@ -263,7 +263,7 @@ class cortex:
                 self.learn(self.target_set[i])
 
             # give cortex time to stabilize, then monitor it regularly
-            if current_session % 100 == 0 and initial_session >= 500:
+            if current_session % 50 == 0 and initial_session >= 100:
                 print("ses: {0} ...".format(current_session))
                 self.get_instability()
 
@@ -689,9 +689,47 @@ class cortex:
 
         if normalize:
             self.training_input_set = self.normalize_training()
-            
         return
+    
 
+    def import_training2(self, input_filepath, target_filepath, normalize = True):
+        """
+        Read training data as separate input and target csv files as
+        these are far more readily available than combined csv formats
+        used in
+        
+        @method import_training
+        """
+
+        self.training_input_set = []
+        self.target_set         = []
+
+        with open(input_filepath) as f:
+            header = next(f)
+            self.in_names  = header.split(',')
+            
+            for line in f:
+                indata = map(float, line.replace('\n','').split(','))
+                self.training_input_set.append(indata)
+
+        f.close()
+        
+        with open(target_filepath) as f:
+            header = next(f)
+            self.out_names = header.split(',')
+            
+            for line in f:
+                outdata = map(float, line.replace('\n','').split(','))
+                self.target_set.append(outdata)
+
+        f.close()
+        
+        self.size_output = len(self.target_set[0])
+        
+        if normalize:
+            self.training_input_set = self.normalize_training()
+        return
+    
 
     def normalize_training(self):
         """normalizes input to output data to speed convergence"""

@@ -1,24 +1,28 @@
 from cortex_class import cortex
 
-# import test data
+# set up a cortex
 input_path = r"training_sets\TJ_data_input.csv"
 target_path = r"training_sets\TJ_data_target.csv"
-
-# set up a cortex
 cort = cortex('cortex_1')
+num_hidden  = 16
+min_acc     = 0.50
+max_err     = 0.01
 
 cort.import_training2(input_path, target_path)
-
-cort.populate(13)
-cort.min_acc = 1.0
-cort.t_function("Threshold", cort.output_neurons)
-
-# make sure even after export and re-import, the cortex can still train
-cort.export_state('initial_state.txt')
-cort.import_state('initial_state.txt')
+cort.normalize_training(-1,1)
+cort.reduce_training(5)
+cort.populate(num_hidden)
+cort.min_acc = min_acc
+cort.max_err = max_err
+cort.crit_instability = 2
+cort.t_function("TanH", cort.neurons)
 
 #train the cortex
-cort.train(10000)
+incriment = 100
+stabilize = 600
+maximum   = 10000
+
+cort.train(incriment, stabilize, maximum)
 cort.print_training_accuracy_report()
 cort.export_state('final_state.txt')
 

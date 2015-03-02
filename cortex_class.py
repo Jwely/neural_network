@@ -1,6 +1,7 @@
 from random import random, randint, sample, randrange
 import numpy
 from neuron_class import neuron
+import sys
 
 __author__ = "Jeffry Ely, jeff.ely.08@gmal.com"
 
@@ -79,11 +80,8 @@ class cortex:
         """
         Defines the transfer function of any number of neurons in cortex
 
-        typically this is used to set the output neurons to have a threshold
-        transfer function while the input neurons retain a sigmoid type
-
         Supported transfer_function inputs are determined at the neuron level,
-        but are at least "Sigmoid" and "Threshold"
+        but are at least "Sigmoid", "Threshold" and "TanH"
         """
         
         for neur in neurons:
@@ -236,7 +234,7 @@ class cortex:
         return
     
 
-    def train(self, max_sessions = 5000):
+    def train(self, epoch_incriment, epoch_stabilize, epoch_max):
         """
         Repeatedly calls self.learn to train the cortex. Tracks instability
 
@@ -247,41 +245,68 @@ class cortex:
         on output neurons should be set to "Threshold" with:
             self.t_function
 
-        use "max_sessions" to limit the time the cortex can spend training
+        Inputs:
+            epoch_incriment   number of epochs between accuracy checks
+            epoch_stabilize   number of epochs before first accuracy check
+            sex_max           maximum number of epochs to run
 
         view the results of training by calling
             self.print_accuracy_report
         """
 
-        current_session = 1
-        initial_session = 1
+        print("\nInitializing training of cortex '{0}'\n".format(self.name))
+        current_epoch = 1
+        initial_epoch = 1
 
-        while current_session < max_sessions and self.accuracy < self.min_acc:
-             
+        session_length = len(self.training_input_set)
+        
+        while current_epoch < epoch_max and self.accuracy < self.min_acc:
+            
+            if session_length >= 500:
+                print("training")
+                
             for i, training_input in enumerate(self.training_input_set):
                 self.fire(training_input)
                 self.learn(self.target_set[i])
+                if i% 500 == 0 and i != 0:
+                    print("epoch: \t {0} \t row: {1}".format(current_epoch, i))
+                    
 
             # give cortex time to stabilize, then monitor it regularly
-            if current_session % 50 == 0 and initial_session >= 100:
-                print("ses: {0} ...".format(current_session))
+            if current_epoch % epoch_incriment == 0 and initial_epoch >= epoch_stabilize:
+                print("epoch: {0} ...".format(current_epoch))
                 self.get_instability()
 
                 # if instability is very low, cortex has converged for better or worse
                 if self.instability < 1e-3:
                     if self.get_training_accuracy() < self.min_acc:
-                        print("ses: {0}, Repopulating hidden neurons".format(current_session))
+                        print("epoch: {0}, Repopulating hidden neurons".format(current_epoch))
                         self.repopulate("Hidden")
-                        initial_session = 1
+                        initial_epoch = 1
                         
                 elif self.instability >= self.crit_instability:
-                    print("ses: {0}, Repopulating all neurons".format(current_session))
+                    print("epoch: {0}, Repopulating all neurons".format(current_epoch))
                     self.repopulate()
-                    initial_session = 1
+                    initial_epoch = 1
 
-            current_session += 1
-            initial_session += 1
+            current_epoch += 1
+            initial_epoch += 1
         return
+
+
+    def train_multithread(self, epoch_incriment, epoch_stabilize, epoch_max , num_threads):
+        """
+        There is good reason to attept multithreading of cortex training. One
+        approach would be to segment the training set into 2+ equal parts and train 2+
+        duplicate cortexes for some small number of sessions, then average the weights
+        together, then resume separate training, and so on.
+
+        could use?
+        import threading
+        import multiprocessing
+        """
+        pass
+        
 
     def get_instability(self):
         """
@@ -567,7 +592,8 @@ class cortex:
             # grabs cortex level information from the top first
             cortex_header = next(f).replace('\n','').replace(' ','').split(';')
             
-            cortex_line = next(f).replace('\n','').replace(' ','').replace("[","").replace("]","")
+            cortex_line = next(f).replace('\n','').replace(' ','')
+            cortex_line = cortex_line.replace("[","").replace("]","")
             cortex_info = cortex_line.split(';')
 
             for i,field in enumerate(cortex_info):
@@ -655,7 +681,7 @@ class cortex:
         
         return
 
-    def import_training(self, training_data_filepath, normalize = True):
+    def import_training(self, training_data_filepath):
 
         """
         Read training data as input/ouput format from text file
@@ -686,13 +712,10 @@ class cortex:
         f.close()
 
         self.size_output = len(self.target_set[0])
-
-        if normalize:
-            self.training_input_set = self.normalize_training()
         return
     
 
-    def import_training2(self, input_filepath, target_filepath, normalize = True):
+    def import_training2(self, input_filepath, target_filepath):
         """
         Read training data as separate input and target csv files as
         these are far more readily available than combined csv formats
@@ -725,19 +748,95 @@ class cortex:
         f.close()
         
         self.size_output = len(self.target_set[0])
-        
-        if normalize:
-            self.training_input_set = self.normalize_training()
         return
     
 
-    def normalize_training(self):
-        """normalizes input to output data to speed convergence"""
+    def normalize_training(self, low_bound, high_bound):
+        """
+        normalizes input data to speed convergence
 
-        inarray_norm = []
-        for i,training_set in enumerate(self.training_input_set):
-            if max(training_set) != 0:
-                training_set = [(float(j)/max(training_set)) for j in training_set]
-            inarray_norm.append(training_set)
+        When using normalized training sets, it is important to ensure
+        that the training set represents the most extreme likely scenarios.
+        A trained cortex may not be able to handle inputs outside the range
+        of training inputs.
+        """
 
-        return(inarray_norm)
+        def normalize(self, dataset, low_bound, high_bound):
+            # transpose the training set to get individual column min/maxs
+            col_maxs = []
+            col_mins = []
+            
+            column_dataset = zip(*dataset)
+            for column in column_dataset:
+                col_maxs.append(max(column))
+                col_mins.append(min(column))
+                
+            del column_dataset
+
+            # set up empty new training array normalize the input data.
+            dataset_norm = []
+            
+            for i, data_row in enumerate(dataset):
+
+                row_norm = []
+                for j, data in enumerate(data_row):
+                    # z = (high_bound - low_bound)*(x - min)/(max - min) + low_bound
+
+                    # catch errors that arise when all inputs in column are identical
+                    if (col_maxs[j] - col_mins[j]) ==0:
+                        z = 0
+                    else:
+                        b_range = (high_bound - low_bound)
+                        z       = (data - col_mins[j]) / (col_maxs[j] - col_mins[j])
+                        z       = (b_range) * z + low_bound
+                        
+                    row_norm.append(z)
+                    
+                dataset_norm.append(row_norm)
+
+            return(dataset_norm)
+
+        self.training_input_set = normalize(self, self.training_input_set,
+                                            low_bound, high_bound)
+        self.target_set         = normalize(self, self.target_set,
+                                            low_bound, high_bound)
+        return
+
+
+    def reduce_training(self, num_rows):
+        """ quick dirty function to reduce a training set to num_rows entries"""
+
+        self.training_input_set[num_rows:]   = []
+        self.target_set[num_rows:]          = []
+        return
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

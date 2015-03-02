@@ -30,7 +30,7 @@ class neuron:
         self.hasparents = False
         self.parents    = []
         
-        self.t_function = "Sigmoid"     # Supports 'Sigmoid' or 'Threshold'
+        self.t_function = "Sigmoid"     # See @method "forward_transfer"
         self.size       = 0             # number of dendrites (input values)
         self.dec        = 2             # number of decimal digits in output
         
@@ -156,9 +156,9 @@ class neuron:
             """ back propogation for a hyperbolic tangent function"""
             # derivative of tanh(x) is ( 1- tanh^2(x)), used for back propogation
 
-            Dd_Dz = self.axon * (1 - math.tanh(x)**2)
+            Dd_Dz = self.axon * (1 - math.tanh(self.axon)**2)
 
-            if target   # for neurons on the output layer
+            if target:  # for neurons on the output layer
                 new_delta = Dd_Dz * (self.axon - target)
                 
             else:       # for neurons in hidden layers
@@ -169,7 +169,21 @@ class neuron:
 
                 new_delta = temp_delta * Dd_Dz
 
+            # set new delta values and calculate instability
+            self.del_delta   = new_delta - self.delta
+            self.delta       = new_delta
+            self.instability = self.delta**2 + self.del_delta**2
+
+            # speed the learning rate BEYOND what is typical, but cap it at 0.5. 
+            self.learning_rate  = abs(self.delta)**(0.1)
+            if self.learning_rate > 0.5:
+                self.learning_rate = 0.5
+
+            self.bias -= self.delta
             
+            return self.delta
+
+        
         def Sig(self, target):
             """ back propogation based on a sigmoid function"""
 
@@ -200,6 +214,7 @@ class neuron:
             self.bias -= self.delta
             
             return self.delta
+
 
         def Thresh(self, target):
             """back propogation based on threshold function (outlayer ONLY)"""

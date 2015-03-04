@@ -12,7 +12,7 @@ cort.min_acc = 1.0
 cort.t_function("Threshold", cort.output_neurons)
 
 #train the cortex
-cort.train(10000)
+cort.train(100, 50, 10000)
 cort.print_training_accuracy_report()
 cort.interogate()
 

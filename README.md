@@ -2,8 +2,7 @@
 This is a python implimentation of neural networks with back propogation 
 and experimental stability metrics to speed convergence of cortex training
 
-This was created as my own learning excersize for neural networks, but has
-evolved to be of moderate complexity and high quality. It manages the 
+This was created as my own learning excersize for neural networks. It manages the 
 creation and training of neural networks or "cortex's" with some diagnostic
 and tracking ability. It has thus far been tested to train cortex's on fairly
 simple training datasets, but has performed extremely reliably.
